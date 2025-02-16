@@ -1,35 +1,29 @@
-// Handle Settings Update
-async function updateSettings() {
-    const settings = {
-        timer1: document.getElementById("timer1").value,
-        timer2: document.getElementById("timer2").value,
-        timer3: document.getElementById("timer3").value,
-        password: document.getElementById("password").value
-    };
-
-    const response = await fetch("http://alarm.local/update-settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings)
-    });
-
-    if (response.ok) {
-        alert("Settings updated successfully!");
-    } else {
-        alert("Error communicating with the device.");
-    }
-}
-
-// PWA Install Button
 let installPrompt;
 const installBtn = document.getElementById("installBtn");
 
+// Listen for the 'beforeinstallprompt' event
 window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     installPrompt = e;
+
+    // Show the install button
     installBtn.style.display = "block";
 });
 
+// When the install button is clicked, show the install prompt
 installBtn.addEventListener("click", () => {
-    installPrompt.prompt();
+    if (installPrompt) {
+        installPrompt.prompt(); // Trigger the install prompt
+        installPrompt.userChoice.then((choiceResult) => {
+            console.log(choiceResult.outcome);  // Log the outcome of the install prompt
+
+            if (choiceResult.outcome === "accepted") {
+                console.log("User accepted the installation");
+            } else {
+                console.log("User dismissed the installation");
+            }
+        });
+
+        installPrompt = null;  // Reset the prompt to avoid multiple triggers
+    }
 });
